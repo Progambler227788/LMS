@@ -1,0 +1,4 @@
+package com.codingwork.lms.service;
+
+public class CourseService {
+}
