@@ -1,4 +1,4 @@
-package com.codingwork.lms.security;
+package com.codingwork.lms.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

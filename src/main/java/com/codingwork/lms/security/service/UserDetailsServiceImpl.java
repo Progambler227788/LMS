@@ -1,4 +1,4 @@
-package com.codingwork.lms.service.impl;
+package com.codingwork.lms.security.service;
 
 // I added these comments so that I don't forget my codebase XD :)
 // UserDetailsServiceImpl is only responsible for fetching authentication-related user details.

@@ -7,7 +7,7 @@ import com.codingwork.lms.entity.User;
 import com.codingwork.lms.exception.DuplicateResourceException;
 import com.codingwork.lms.exception.InvalidCredentialsException;
 import com.codingwork.lms.repository.UserRepository;
-import com.codingwork.lms.security.JwtUtil;
+import com.codingwork.lms.security.jwt.JwtUtil;
 import com.codingwork.lms.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;

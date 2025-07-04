@@ -1,6 +1,6 @@
-package com.codingwork.lms.security;
+package com.codingwork.lms.security.jwt;
 
-import com.codingwork.lms.service.impl.UserDetailsServiceImpl;
+import com.codingwork.lms.security.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

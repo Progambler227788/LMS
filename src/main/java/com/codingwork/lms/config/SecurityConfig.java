@@ -1,7 +1,7 @@
 package com.codingwork.lms.config;
 
-import com.codingwork.lms.security.JwtFilter;
-import com.codingwork.lms.service.impl.UserDetailsServiceImpl;
+import com.codingwork.lms.security.jwt.JwtFilter;
+import com.codingwork.lms.security.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
