@@ -1,10 +1,9 @@
 package com.codingwork.lms.service.impl;
 
-import com.codingwork.lms.dto.request.auth.LoginRequestDTO;
-import com.codingwork.lms.dto.request.auth.SignUpRequestDTO;
-import com.codingwork.lms.dto.response.UserResponseDTO;
+import com.codingwork.lms.dto.request.auth.LoginRequest;
+import com.codingwork.lms.dto.request.auth.SignUpRequest;
+import com.codingwork.lms.dto.response.user.UserResponse;
 import com.codingwork.lms.entity.User;
-import com.codingwork.lms.entity.enums.Role;
 import com.codingwork.lms.exception.DuplicateResourceException;
 import com.codingwork.lms.exception.InvalidCredentialsException;
 import com.codingwork.lms.repository.UserRepository;
@@ -17,7 +16,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
 
     @Override
-    public UserResponseDTO login(LoginRequestDTO requestDTO, HttpServletResponse response) {
+    public UserResponse login(LoginRequest requestDTO, HttpServletResponse response) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -50,8 +48,8 @@ public class AuthServiceImpl implements AuthService {
 
             // Set secure cookie
             Cookie cookie = new Cookie("jwt_token", token);
-            cookie.setHttpOnly(true);
-            cookie.setSecure(true); // Enable in production
+            cookie.setHttpOnly(true); // JS can't access it
+            cookie.setSecure(true);
             cookie.setPath("/");
             cookie.setMaxAge(86400); // 1 day
             response.addCookie(cookie);
@@ -59,7 +57,7 @@ public class AuthServiceImpl implements AuthService {
             User user = userRepository.findByUsername(requestDTO.getUsername())
                     .orElseThrow(() -> new InvalidCredentialsException("User not found"));
 
-            return new UserResponseDTO(
+            return new UserResponse(
                     user.getId(),
                     user.getUsername(),
                     user.getEmail(),
@@ -71,13 +69,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserResponseDTO register(SignUpRequestDTO requestDTO) {
-        // Check for existing username or email
-        if (userRepository.existsByUsername(requestDTO.getUsername())) {
+    public UserResponse register(SignUpRequest requestDTO) {
+        // Check for existing username
+        if ( userRepository.findByUsername(requestDTO.getUsername()).isPresent() ) {
             throw new DuplicateResourceException("Username already taken");
         }
-
-        if (userRepository.existsByEmail(requestDTO.getEmail())) {
+         // Check for existing email
+        if ( userRepository.findByEmail(requestDTO.getEmail()).isPresent() ) {
             throw new DuplicateResourceException("Email already registered");
         }
 
@@ -92,7 +90,7 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUser = userRepository.save(newUser);
 
-        return new UserResponseDTO(
+        return new UserResponse(
                 savedUser.getId(),
                 savedUser.getUsername(),
                 savedUser.getEmail(),
@@ -104,8 +102,8 @@ public class AuthServiceImpl implements AuthService {
     public void logout(HttpServletResponse response) {
         Cookie cookie = new Cookie("jwt_token", null);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true); // Enable in production
-        cookie.setPath("/");
+        cookie.setSecure(true); // JS can't access it
+        cookie.setPath("/"); // Remove cookie from all paths
         cookie.setMaxAge(0);
         response.addCookie(cookie);
     }

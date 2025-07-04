@@ -2,7 +2,7 @@ spring:
   application:
     name: lms
   server:
-    port: ${SERVER_PORT}
+    port: ${SERVER_PORT:8080}
   data:
     mongodb:
       uri: ${MONGO_URI}

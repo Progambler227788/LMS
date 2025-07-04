@@ -1,28 +1,24 @@
-package com.codingwork.lms.dto.request;
-
+package com.codingwork.lms.dto.response.course;
 
 import com.codingwork.lms.entity.subdocument.Lesson;
-import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 /**
- * DTO for creating a course.
+ * DTO for returning course data to client.
  */
 @Data
-public class CourseRequestDTO {
+@AllArgsConstructor
+@NoArgsConstructor
+public class CourseResponse {
 
-    @NotBlank(message = "Title is required")
+    private String id;
     private String title;
-
     private String description;
-
-    @NotBlank(message = "Instructor ID is required")
     private String instructorId;
-
     private String category;
-
     private List<Lesson> lessons;
 }
-

@@ -1,10 +1,12 @@
 package com.codingwork.lms.controller;
 
 
-import com.codingwork.lms.dto.request.auth.LoginRequestDTO;
-import com.codingwork.lms.dto.request.auth.SignUpRequestDTO;
-import com.codingwork.lms.dto.response.UserResponseDTO;
+import com.codingwork.lms.dto.request.auth.LoginRequest;
+import com.codingwork.lms.dto.request.auth.SignUpRequest;
+import com.codingwork.lms.dto.response.user.UserResponse;
 import com.codingwork.lms.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "Handles user login, registration, and logout")
 public class AuthController {
 
     private final AuthService authService;
@@ -28,10 +31,11 @@ public class AuthController {
      * @param response HttpServletResponse for setting cookies
      * @return Authenticated user info
      */
+    @Operation(summary = "Login", description = "Authenticate user and return JWT token in cookie")
     @PostMapping("/login")
-    public ResponseEntity<UserResponseDTO> login(@Valid @RequestBody LoginRequestDTO requestDTO,
+    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest requestDTO,
                                                  HttpServletResponse response) {
-        UserResponseDTO user = authService.login(requestDTO, response);
+        UserResponse user = authService.login(requestDTO, response);
         return ResponseEntity.ok(user);
     }
 
@@ -40,9 +44,10 @@ public class AuthController {
      * @param requestDTO User registration data
      * @return Created user info
      */
+    @Operation(summary = "Register", description = "Register a new user")
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> register(@Valid @RequestBody SignUpRequestDTO requestDTO) {
-        UserResponseDTO createdUser = authService.register(requestDTO);
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody SignUpRequest requestDTO) {
+        UserResponse createdUser = authService.register(requestDTO);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
@@ -50,6 +55,7 @@ public class AuthController {
      * Logs the user out by clearing the JWT cookie.
      * @param response HttpServletResponse for clearing cookies
      */
+    @Operation(summary = "Logout", description = "Logout user and clear JWT cookie")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         authService.logout(response);

@@ -17,5 +17,5 @@ public class Enrollment {
     private double progress;
     private boolean completed;
 
-    // Getters/setters/constructors
+
 }

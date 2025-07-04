@@ -5,19 +5,13 @@ package com.codingwork.lms.service.impl;
 // UserDetailsService is a Spring Security interface that provides a method loadUserByUsername(String username)
 
 
-import com.codingwork.lms.entity.User;
 import com.codingwork.lms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService
@@ -27,22 +21,9 @@ public class UserDetailsServiceImpl implements UserDetailsService
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Get the user from the database
-        User user = userRepository.findByUsername(username);
-        if (user != null) {
-            // Create authority from the single role
-            GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
-            List<GrantedAuthority> authorities = Collections.singletonList(authority);
-
-            return org.springframework.security.core.userdetails.User.builder()
-                    .username(user.getUsername())
-                    .password(user.getPassword())
-                    .authorities(authorities)
-                    .build();
-        }
-        throw new UsernameNotFoundException("User not found: " + username);
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
-
 
 }
 

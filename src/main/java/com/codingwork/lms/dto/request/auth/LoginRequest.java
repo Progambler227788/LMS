@@ -1,6 +1,5 @@
 package com.codingwork.lms.dto.request.auth;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -8,7 +7,7 @@ import lombok.Data;
  * DTO for user login request.
  */
 @Data
-public class LoginRequestDTO {
+public class LoginRequest {
 
 
     @NotBlank(message = "UserName is required")

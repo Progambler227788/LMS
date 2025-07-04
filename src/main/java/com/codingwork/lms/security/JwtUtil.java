@@ -4,7 +4,6 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import java.security.Key;
 import java.util.Date;
 
@@ -23,8 +22,6 @@ public class JwtUtil {
     private final long EXPIRATION_TIME = 86400000; // 1 day in milliseconds
 
     private Key getSigningKey() {
-        // getBytes gives byte[] representation of the string
-        // "abc" -> byte[] = {97, 98, 99}
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 

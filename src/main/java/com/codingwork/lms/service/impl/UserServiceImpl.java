@@ -4,6 +4,7 @@ import com.codingwork.lms.dto.request.user.*;
 import com.codingwork.lms.dto.response.user.*;
 import com.codingwork.lms.entity.User;
 import com.codingwork.lms.exception.ResourceMissingException;
+import com.codingwork.lms.mapper.UserMapper;
 import com.codingwork.lms.repository.UserRepository;
 import com.codingwork.lms.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Override
     public UserResponse createUser(CreateUserRequest request) {
@@ -35,20 +37,20 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User savedUser = userRepository.save(user);
-        return mapToUserResponse(savedUser);
+        return userMapper.toResponse(savedUser);
     }
 
     @Override
     public UserResponse getUserById(String id) {
         User user = userRepository.findById(new ObjectId(id))
                 .orElseThrow(() -> new ResourceMissingException("User not found with id: " + id));
-        return mapToUserResponse(user);
+        return userMapper.toResponse(user);
     }
 
     @Override
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(this::mapToUserResponse)
+                .map(userMapper::toResponse)
                 .toList();
     }
 
@@ -65,7 +67,7 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedAt(LocalDateTime.now());
 
         User updatedUser = userRepository.save(user);
-        return mapToUserResponse(updatedUser);
+        return userMapper.toResponse(updatedUser);
     }
 
     @Override
@@ -80,26 +82,15 @@ public class UserServiceImpl implements UserService {
     public UserResponse findByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceMissingException("User not found with username: " + username));
-        return mapToUserResponse(user);
+        return userMapper.toResponse(user);
     }
 
     @Override
     public UserResponse findByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceMissingException("User not found with email: " + email));
-        return mapToUserResponse(user);
+        return userMapper.toResponse(user);
     }
 
-    private UserResponse mapToUserResponse(User user) {
-        return new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getRole(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getCreatedAt(),
-                user.getUpdatedAt()
-        );
-    }
+
 }

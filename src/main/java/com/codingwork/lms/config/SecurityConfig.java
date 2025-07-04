@@ -1,5 +1,6 @@
-package com.codingwork.lms.security;
+package com.codingwork.lms.config;
 
+import com.codingwork.lms.security.JwtFilter;
 import com.codingwork.lms.service.impl.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,7 +65,7 @@ public class SecurityConfig {
                 }))
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**",
+                        .requestMatchers("/api/auth/**", "/api/instructor/**",
                                 "/v3/**", "/swagger-ui/**", "/swagger-ui.html", "/swagger/**", "/webjars/**", "/lms/**", "/").permitAll()  // Allow all auth routes and swagger
                         .requestMatchers("/api/instructor/**").hasRole("INSTRUCTOR")  // Restrict instructor routes
                         .requestMatchers("/api/user/**").hasRole("USER")  // Restrict user routes

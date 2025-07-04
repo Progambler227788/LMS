@@ -11,7 +11,7 @@ import lombok.Data;
  * DTO for user registration.
  */
 @Data
-public class SignUpRequestDTO {
+public class SignUpRequest {
 
     @Email(message = "Email should be valid")
     @NotBlank(message = "Email is required")
@@ -30,6 +30,5 @@ public class SignUpRequestDTO {
     @NotBlank(message = "Username is required")
     private String username;
 
-    @NotBlank(message = "Role is required")
     private Role role;
 }
