@@ -14,6 +14,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -50,12 +52,17 @@ public class AuthServiceImpl implements AuthService {
             String token = jwtUtil.generateToken(authentication.getName(), role);
 
             // Set secure cookie
-            Cookie cookie = new Cookie("jwt_token", token);
-            cookie.setHttpOnly(true); // JS can't access it
-            cookie.setSecure(true);
-            cookie.setPath("/");
-            cookie.setMaxAge(86400); // 1 day
-            response.addCookie(cookie);
+            // Default Cookie will not work due to CORS
+
+            ResponseCookie cookie = ResponseCookie.from("jwt_token", token)
+                    .httpOnly(true)
+                    .secure(true) // Required for SameSite=None
+                    .sameSite("None") // 👈 This fixes the cross-origin issue
+                    .path("/")
+                    .maxAge(86400)
+                    .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
             User user = userRepository.findByUsername(requestDTO.getUsername())
                     .orElseThrow(() -> new InvalidCredentialsException("User not found"));
