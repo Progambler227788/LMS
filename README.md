@@ -20,6 +20,7 @@ A robust backend system for a Learning Management System built with Spring Boot 
 - **Students** can:
   - Browse all available courses
   - Filter courses by category
+  - Search Courses by keywords
 
 ### Security
 - JWT-based authentication
