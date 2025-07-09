@@ -22,4 +22,8 @@ public interface AuthService {
      * Logs out the user by removing JWT cookie.
      */
     void logout(HttpServletResponse response);
+
+
+    UserResponse getCurrentUser();
+
 }

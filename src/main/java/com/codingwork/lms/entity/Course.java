@@ -21,6 +21,7 @@ public class Course {
     private String description;
     private String instructorId;
     private String category; // Enum: PROGRAMMING, DESIGN, BUSINESS, etc.
+    private String imageUrl;
     private List<Lesson> lessons;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

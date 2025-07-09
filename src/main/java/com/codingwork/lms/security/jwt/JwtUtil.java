@@ -1,8 +1,11 @@
 package com.codingwork.lms.security.jwt;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
@@ -15,8 +18,15 @@ Validate the token for expiration and authenticity.
 @Component
 public class JwtUtil {
 
-    @Value("${secret.key}")
     private String SECRET_KEY;
+
+    public JwtUtil(Dotenv dotenv) {
+        this.SECRET_KEY = dotenv.get("SECRET_KEY");
+        // Add validation
+        if (this.SECRET_KEY == null || this.SECRET_KEY.isEmpty()) {
+            throw new IllegalStateException("SECRET_KEY must be configured in .env file");
+        }
+    }
 
 
     private final long EXPIRATION_TIME = 86400000; // 1 day in milliseconds
@@ -52,5 +62,13 @@ public class JwtUtil {
         } catch (JwtException e) {
             return false;
         }
+    }
+
+    public String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+        return authentication.getName();
     }
 }

@@ -4,6 +4,7 @@ import com.codingwork.lms.dto.request.auth.LoginRequest;
 import com.codingwork.lms.dto.request.auth.SignUpRequest;
 import com.codingwork.lms.dto.response.user.UserResponse;
 import com.codingwork.lms.entity.User;
+import com.codingwork.lms.entity.enums.Role;
 import com.codingwork.lms.exception.DuplicateResourceException;
 import com.codingwork.lms.exception.InvalidCredentialsException;
 import com.codingwork.lms.repository.UserRepository;
@@ -12,6 +13,7 @@ import com.codingwork.lms.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
@@ -70,6 +73,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserResponse register(SignUpRequest requestDTO) {
+        log.debug("Register request: {}", requestDTO);
         // Check for existing username
         if ( userRepository.findByUsername(requestDTO.getUsername()).isPresent() ) {
             throw new DuplicateResourceException("Username already taken");
@@ -79,13 +83,19 @@ public class AuthServiceImpl implements AuthService {
             throw new DuplicateResourceException("Email already registered");
         }
 
+        // Check for role
+        Role role = requestDTO.getRole();
+        if ( role == null ) {
+            role = Role.STUDENT;
+        }
+
         User newUser = User.builder()
                 .email(requestDTO.getEmail())
                 .username(requestDTO.getUsername())
                 .password(passwordEncoder.encode(requestDTO.getPassword()))
                 .firstName(requestDTO.getFirstName())
                 .lastName(requestDTO.getLastName())
-                .role(requestDTO.getRole())
+                .role(role)
                 .build();
 
         User savedUser = userRepository.save(newUser);
@@ -107,4 +117,19 @@ public class AuthServiceImpl implements AuthService {
         cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
+
+    @Override
+    public UserResponse getCurrentUser() {
+        String username = jwtUtil.getCurrentUsername(); // Get from SecurityContext
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole()
+        );
+    }
+
 }

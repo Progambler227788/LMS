@@ -6,10 +6,12 @@ spring:
   data:
     mongodb:
       uri: ${MONGO_URI}
-      database: lmsdb
       auto-index-creation: true
-  config:
-    import: optional:file:.env[.properties]
-
 secret:
   key: ${SECRET_KEY}
+
+logging:
+  level:
+    root: WARN
+    com.codingwork.lms: DEBUG
+    org.springframework.web: INFO

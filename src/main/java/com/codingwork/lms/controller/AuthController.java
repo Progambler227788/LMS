@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Authentication", description = "Handles user login, registration, and logout")
 public class AuthController {
 
@@ -35,6 +37,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest requestDTO,
                                                  HttpServletResponse response) {
+        log.info("Login request: {}", requestDTO);
         UserResponse user = authService.login(requestDTO, response);
         return ResponseEntity.ok(user);
     }
@@ -47,6 +50,7 @@ public class AuthController {
     @Operation(summary = "Register", description = "Register a new user")
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody SignUpRequest requestDTO) {
+        log.info("Register request: {}", requestDTO);
         UserResponse createdUser = authService.register(requestDTO);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
@@ -61,5 +65,15 @@ public class AuthController {
         authService.logout(response);
         return ResponseEntity.ok().build();
     }
+
+
+
+    @Operation(summary = "Get current user", description = "Returns currently authenticated user from JWT token")
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser() {
+        log.info("Get current user");
+        return ResponseEntity.ok(authService.getCurrentUser());
+    }
+
 }
 

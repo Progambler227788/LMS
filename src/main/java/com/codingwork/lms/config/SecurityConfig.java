@@ -58,9 +58,10 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("*")); // Allow all origins
+                    config.setAllowedOrigins(List.of("http://localhost:5173"));
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
                     config.setAllowedHeaders(List.of("*"));
+                    config.setAllowCredentials(true); // Allow cookies
                     return config;
                 }))
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
