@@ -8,8 +8,6 @@ import java.util.List;
 
 @Data
 public class UpdateCourseRequest {
-    @NotBlank
-    private String id;
 
     @NotBlank
     private String title;
@@ -21,4 +19,6 @@ public class UpdateCourseRequest {
     private String category;
 
     private List<Lesson> lessons;
+
+    private double price;
 }

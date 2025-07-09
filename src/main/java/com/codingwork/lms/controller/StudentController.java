@@ -5,11 +5,10 @@ import com.codingwork.lms.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/student")
@@ -20,26 +19,37 @@ public class StudentController {
     private final StudentService studentService;
 
     /**
-     * Get all available courses
-     */
-    @Operation(summary = "Get All Courses", description = "Retrieve all available courses for students")
-    @PreAuthorize("hasRole('STUDENT')")
-    @GetMapping("/courses")
-    public ResponseEntity<List<CourseResponse>> getAllCourses() {
-        return ResponseEntity.ok(studentService.getAllCourses());
-    }
-
-    /**
      * Get courses by category using request param
      */
     @Operation(
             summary = "Get Courses by Category",
-            description = "Retrieve courses filtered by category for students"
+            description = "Retrieve paginated courses filtered by category for students"
     )
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/courses/filter")
-    public ResponseEntity<List<CourseResponse>> getCoursesByCategory(@RequestParam String category) {
-        return ResponseEntity.ok(studentService.getCoursesByCategory(category));
+    public ResponseEntity<Page<CourseResponse>> getCoursesByCategory(
+            @RequestParam String category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+
+        return ResponseEntity.ok(studentService.getCoursesByCategory(category, page, size));
+    }
+
+
+    @Operation(
+            summary = "Get Courses (Paginated & Searchable)",
+            description = "Retrieve paginated and searchable courses for students. You can filter by category and search keywords."
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/courses")
+    public ResponseEntity<Page<CourseResponse>> getCourses(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String search
+    ) {
+        return ResponseEntity.ok(studentService.getCourses(page, size, category, search));
     }
 
 }

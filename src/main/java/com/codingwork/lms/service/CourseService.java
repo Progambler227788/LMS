@@ -6,6 +6,9 @@ import com.codingwork.lms.dto.response.course.CourseResponse;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 
 /**
  * Service interface for course-related operations.
@@ -67,7 +70,7 @@ public interface CourseService {
      * @param category The course category
      * @return List of course responses
      */
-    List<CourseResponse> getCoursesByCategory(String category);
+    Page<CourseResponse>  getCoursesByCategory(String category, Pageable pageable);
 
     /**
      * Gets all courses (legacy/global).
@@ -80,4 +83,6 @@ public interface CourseService {
      * @param id The course ID
      */
     void deleteCourseById(String id);
+
+    Page<CourseResponse> getCourses(int page, int size, String category, String search);
 }

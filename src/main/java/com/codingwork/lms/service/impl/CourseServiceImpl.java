@@ -15,7 +15,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service implementation for course-related operations.
@@ -78,7 +80,7 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.findByInstructorId(instructorId)
                 .stream()
                 .map(courseMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -101,9 +103,10 @@ public class CourseServiceImpl implements CourseService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
         String username;
-        if (principal instanceof UserDetails) {
-            username = ((UserDetails) principal).getUsername();
-        } else {
+        if (principal instanceof UserDetails userDetails) {
+            username = userDetails.getUsername();
+        }
+        else {
             username = principal.toString();
         }
         return userRepository.findByUsername(username)
@@ -123,15 +126,13 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.findByInstructorId(instructorId)
                 .stream()
                 .map(courseMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
-    public List<CourseResponse> getCoursesByCategory(String category) {
-        return courseRepository.findByCategory(category)
-                .stream()
-                .map(courseMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<CourseResponse> getCoursesByCategory(String category, Pageable pageable) {
+        return courseRepository.findByCategory(category.toLowerCase(), pageable)
+                .map(courseMapper::toResponse);
     }
 
     @Override
@@ -139,13 +140,50 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.findAll()
                 .stream()
                 .map(courseMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public void deleteCourseById(String id) {
         courseRepository.deleteById(id);
     }
+
+    private boolean isValid(String val) {
+        return val != null && !val.trim().isEmpty();
+    }
+
+
+    @Override
+    public Page<CourseResponse> getCourses(int page, int size, String category, String search) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        boolean hasCategory = isValid(category);
+        boolean hasSearch = isValid(search);
+
+        if (hasCategory && hasSearch) {
+            return courseRepository
+                    .findByCategoryAndTitleContainingIgnoreCaseOrCategoryAndDescriptionContainingIgnoreCase(
+                            category, search, category, search, pageable
+                    )
+                    .map(courseMapper::toResponse);
+        }
+
+        if (hasCategory) {
+            return courseRepository.findByCategory(category, pageable)
+                    .map(courseMapper::toResponse);
+        }
+
+        if (hasSearch) {
+            return courseRepository
+                    .findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+                            search, search, pageable
+                    )
+                    .map(courseMapper::toResponse);
+        }
+
+        return courseRepository.findAll(pageable).map(courseMapper::toResponse);
+    }
+
 
 
 }

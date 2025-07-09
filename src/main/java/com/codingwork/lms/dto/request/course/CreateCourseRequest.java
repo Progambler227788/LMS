@@ -19,4 +19,6 @@ public class CreateCourseRequest {
 
 
     private List<Lesson> lessons; // Optional at creation
+
+    private double price;
 }
