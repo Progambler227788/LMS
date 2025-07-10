@@ -52,4 +52,16 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getCourses(page, size, category, search));
     }
 
+
+    @Operation(
+            summary = "Enroll in a course",
+            description = "Allows a student to enroll in a course by course ID"
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @PostMapping("/courses/enroll/{courseId}")
+    public ResponseEntity<Void> enrollInCourse(@PathVariable String courseId) {
+        studentService.enrollInCourse(courseId);
+        return ResponseEntity.ok().build();
+    }
+
 }

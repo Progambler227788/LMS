@@ -2,9 +2,14 @@ package com.codingwork.lms.service.impl;
 
 
 import com.codingwork.lms.dto.response.course.CourseResponse;
+import com.codingwork.lms.entity.User;
+import com.codingwork.lms.exception.InvalidCredentialsException;
 import com.codingwork.lms.mapper.CourseMapper;
 import com.codingwork.lms.repository.CourseRepository;
+import com.codingwork.lms.repository.UserRepository;
+import com.codingwork.lms.security.jwt.JwtUtil;
 import com.codingwork.lms.service.CourseService;
+import com.codingwork.lms.service.EnrollmentService;
 import com.codingwork.lms.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +25,10 @@ public class StudentServiceImpl implements StudentService {
     private final CourseRepository courseRepository;
     private final CourseMapper courseMapper;
     private final CourseService courseService;
+    private final EnrollmentService enrollmentService;
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
+
 
     @Override
     public List<CourseResponse> getAllCourses() {
@@ -39,4 +48,14 @@ public class StudentServiceImpl implements StudentService {
     public Page<CourseResponse> getCourses(int page, int size, String category, String search) {
         return courseService.getCourses(page, size, category, search);
     }
+
+    @Override
+    public void enrollInCourse(String courseId) {
+        String username = jwtUtil.getCurrentUsername();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+
+        enrollmentService.enroll(user.getId(), courseId);
+    }
+
 }

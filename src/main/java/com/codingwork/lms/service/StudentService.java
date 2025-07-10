@@ -14,5 +14,8 @@ public interface StudentService {
     Page<CourseResponse>  getCoursesByCategory(String category, int page, int size);
 
     Page<CourseResponse> getCourses(int page, int size, String category, String search);
+
+    void enrollInCourse(String courseId);
+
 }
 

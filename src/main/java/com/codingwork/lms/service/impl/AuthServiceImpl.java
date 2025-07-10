@@ -117,11 +117,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout(HttpServletResponse response) {
+        // Create an expired cookie with the same name
         Cookie cookie = new Cookie("jwt_token", null);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true); // JS can't access it
-        cookie.setPath("/"); // Remove cookie from all paths
-        cookie.setMaxAge(0);
+
+        // Security settings (matches how the cookie was set)
+        cookie.setHttpOnly(true);   // Prevent JS access
+        cookie.setSecure(true);     // Only send over HTTPS
+        cookie.setPath("/");       // Available across the entire domain
+        cookie.setMaxAge(0);        // Expire immediately
+
+        // Remove the cookie by adding it to the response
         response.addCookie(cookie);
     }
 
