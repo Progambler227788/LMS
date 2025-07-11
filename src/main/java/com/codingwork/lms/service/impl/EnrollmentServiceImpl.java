@@ -1,24 +1,30 @@
 package com.codingwork.lms.service.impl;
 
 
+import com.codingwork.lms.dto.response.enrollment.EnrollmentResponse;
+import com.codingwork.lms.entity.Course;
 import com.codingwork.lms.entity.Enrollment;
+import com.codingwork.lms.mapper.EnrollmentMapper;
+import com.codingwork.lms.repository.CourseRepository;
 import com.codingwork.lms.repository.EnrollmentRepository;
 import com.codingwork.lms.service.EnrollmentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+
+@RequiredArgsConstructor
 @Service
 public class EnrollmentServiceImpl implements EnrollmentService {
 
     private final EnrollmentRepository enrollmentRepository;
+    private final CourseRepository courseRepository;
+    private final EnrollmentMapper enrollmentMapper;
 
-    @Autowired
-    public EnrollmentServiceImpl(EnrollmentRepository enrollmentRepository) {
-        this.enrollmentRepository = enrollmentRepository;
-    }
+
 
     @Override
     public Enrollment enroll(String userId, String courseId) {
@@ -45,5 +51,19 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     public List<Enrollment> getUserEnrollments(String userId) {
         return enrollmentRepository.findByUserId(userId);
+    }
+
+
+    @Override
+    public List<EnrollmentResponse> getUserEnrollmentResponses(String userId) {
+        List<Enrollment> enrollments = enrollmentRepository.findByUserId(userId);
+
+        return enrollments.stream()
+                .map(enrollment -> {
+                    Optional<Course> courseOpt = courseRepository.findById(enrollment.getCourseId());
+                    return courseOpt.map(course -> enrollmentMapper.toResponse(enrollment, course)).orElse(null);
+                })
+                .filter(response -> response != null)
+                .collect(Collectors.toList());
     }
 }

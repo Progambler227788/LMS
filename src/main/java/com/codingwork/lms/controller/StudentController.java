@@ -1,6 +1,7 @@
 package com.codingwork.lms.controller;
 
 import com.codingwork.lms.dto.response.course.CourseResponse;
+import com.codingwork.lms.dto.response.enrollment.EnrollmentResponse;
 import com.codingwork.lms.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/student")
@@ -63,5 +66,32 @@ public class StudentController {
         studentService.enrollInCourse(courseId);
         return ResponseEntity.ok().build();
     }
+
+    @Operation(
+            summary = "Get enrolled courses for student",
+            description = "Fetches all courses the logged-in student is enrolled in"
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/enrollments")
+    public ResponseEntity<List<EnrollmentResponse>> getUserEnrollments() {
+        List<EnrollmentResponse> enrollments = studentService.getUserEnrollments();
+        return ResponseEntity.ok(enrollments);
+    }
+
+
+    @Operation(
+            summary = "Get course by ID",
+            description = "Fetch a single course by its ID for students"
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/courses/{courseId}")
+    public ResponseEntity<CourseResponse> getCourseById(@PathVariable String courseId) {
+        return studentService.getCourse(courseId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+
 
 }

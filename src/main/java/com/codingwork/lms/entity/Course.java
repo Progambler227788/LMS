@@ -1,6 +1,8 @@
 package com.codingwork.lms.entity;
 
 import com.codingwork.lms.entity.subdocument.Lesson;
+import com.codingwork.lms.entity.subdocument.Section;
+import com.codingwork.lms.entity.subdocument.StructuredDescription;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -23,15 +25,20 @@ public class Course {
     private String id;
 
     private String title;
-    private String description;
     private String instructorId;
 
     @Indexed
     private String category;
 
     private String imageUrl;
-    private List<Lesson> lessons;
+    private List<Section> sections;
+
     private double price;
+    private boolean free;
+    private String language;
+    private StructuredDescription description;
+    private int durationMinutes;
+
     private double rating;
     private int ratingCount;
     private LocalDateTime createdAt;

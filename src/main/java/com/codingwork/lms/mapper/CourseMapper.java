@@ -22,14 +22,18 @@ public class CourseMapper {
 
     public Course toEntity(CreateCourseRequest dto) {
         if (dto == null) return null;
+
         return Course.builder()
                 .title(dto.getTitle())
-                .description(dto.getDescription())
+                .description(dto.getStructuredDescription())
                 .category(dto.getCategory().toLowerCase(Locale.ROOT))
-                .lessons(dto.getLessons())
+                .sections(dto.getSections())
                 .price(dto.getPrice())
-                .rating(0.0) // Default rating
-                .ratingCount(0) // No ratings initially
+                .free(dto.isFree())
+                .language(dto.getLanguage())
+                .durationMinutes(dto.getDurationMinutes())
+                .rating(0.0)
+                .ratingCount(0)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -37,20 +41,25 @@ public class CourseMapper {
 
     public void updateEntity(Course course, UpdateCourseRequest dto) {
         if (dto == null || course == null) return;
+
         course.setTitle(dto.getTitle());
-        course.setDescription(dto.getDescription());
+        course.setDescription(dto.getStructuredDescription());
         course.setCategory(dto.getCategory().toLowerCase(Locale.ROOT));
         course.setPrice(dto.getPrice());
-        if (dto.getLessons() != null) {
-            course.setLessons(dto.getLessons());
+        course.setFree(dto.isFree());
+        course.setLanguage(dto.getLanguage());
+        course.setDurationMinutes(dto.getDurationMinutes());
+
+        if (dto.getSections() != null) {
+            course.setSections(dto.getSections());
         }
+
         course.setUpdatedAt(LocalDateTime.now());
     }
 
     public CourseResponse toResponse(Course course) {
         if (course == null) return null;
 
-        // Fetch instructor name
         String instructorName = userRepository.findById(new ObjectId(course.getInstructorId()))
                 .map(User::getUsername)
                 .orElse("Unknown Instructor");
@@ -62,8 +71,12 @@ public class CourseMapper {
                 .instructorId(course.getInstructorId())
                 .instructorName(instructorName)
                 .category(course.getCategory())
-                .lessons(course.getLessons())
+                .imageUrl(course.getImageUrl())
+                .sections(course.getSections())
                 .price(course.getPrice())
+                .isFree(course.isFree())
+                .language(course.getLanguage())
+                .durationMinutes(course.getDurationMinutes())
                 .rating(course.getRating())
                 .ratingCount(course.getRatingCount())
                 .createdAt(course.getCreatedAt().format(formatter))
