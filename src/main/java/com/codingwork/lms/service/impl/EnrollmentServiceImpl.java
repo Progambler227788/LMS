@@ -11,6 +11,7 @@ import com.codingwork.lms.service.EnrollmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,6 +40,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         enrollment.setEnrolledAt(LocalDateTime.now());
         enrollment.setProgress(0.0);
         enrollment.setCompleted(false);
+        enrollment.setCompletedLessonTitles(new ArrayList<>());
 
         return enrollmentRepository.save(enrollment);
     }
@@ -66,4 +68,41 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .filter(response -> response != null)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void markLessonComplete(String userId, String courseId, String lessonTitle) {
+        Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId)
+                .orElseThrow(() -> new IllegalStateException("User not enrolled"));
+
+        if (enrollment.getCompletedLessonTitles() == null) {
+            enrollment.setCompletedLessonTitles(new ArrayList<>());
+        }
+
+        if (!enrollment.getCompletedLessonTitles().contains(lessonTitle)) {
+            // add the lesson if it does not exist in completion
+            enrollment.getCompletedLessonTitles().add(lessonTitle);
+
+            // Calculate progress
+            Optional<Course> courseOpt = courseRepository.findById(courseId);
+            if (courseOpt.isPresent()) {
+                Course course = courseOpt.get();
+                // get every section lesson and sum them up to get total lessons
+                // section 1 -> l1,l2 , section 2 -> l3,l4
+                // sum them -> l1,l2,l3,l4, so 4 size
+                int totalLessons = course.getSections().stream()
+                        .mapToInt(section -> section.getLessons().size()).sum();
+                int completed = enrollment.getCompletedLessonTitles().size();
+                double progress = ((double) completed / totalLessons) * 100.0;
+                enrollment.setProgress(progress);
+                // course completed
+                if (progress >= 100.0) {
+                    enrollment.setCompleted(true);
+                }
+            }
+
+            // update the enrollment
+            enrollmentRepository.save(enrollment);
+        }
+    }
+
 }

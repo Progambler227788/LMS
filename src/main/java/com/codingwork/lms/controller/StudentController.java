@@ -91,6 +91,20 @@ public class StudentController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(
+            summary = "Mark lesson as complete",
+            description = "Marks a specific lesson as completed for the student in a course"
+    )
+    @PreAuthorize("hasRole('STUDENT')")
+    @PostMapping("/courses/{courseId}/lessons/complete")
+    public ResponseEntity<Void> markLessonComplete(
+            @PathVariable String courseId,
+            @RequestParam String lessonTitle
+    ) {
+        studentService.markLessonComplete(courseId, lessonTitle);
+        return ResponseEntity.ok().build();
+    }
+
 
 
 

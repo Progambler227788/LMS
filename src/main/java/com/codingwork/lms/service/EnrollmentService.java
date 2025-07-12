@@ -9,5 +9,7 @@ public interface EnrollmentService {
     Enrollment enroll(String userId, String courseId);
     boolean isUserEnrolled(String userId, String courseId);
     List<Enrollment> getUserEnrollments(String userId);
-    List<EnrollmentResponse> getUserEnrollmentResponses(String userId); // 🔥 NEW
+    List<EnrollmentResponse> getUserEnrollmentResponses(String userId);
+    void markLessonComplete(String userId, String courseId, String lessonTitle);
+
 }

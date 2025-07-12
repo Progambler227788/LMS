@@ -23,5 +23,7 @@ public interface StudentService {
 
     Optional<CourseResponse> getCourse(String courseId);
 
+    void markLessonComplete(String courseId, String lessonTitle);
+
 }
 

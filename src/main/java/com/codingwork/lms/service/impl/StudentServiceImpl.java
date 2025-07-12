@@ -74,6 +74,12 @@ public class StudentServiceImpl implements StudentService {
                 .getId();
     }
 
+    @Override
+    public void markLessonComplete(String courseId, String lessonTitle){
+        enrollmentService.markLessonComplete(userId(), courseId, lessonTitle);
+
+    }
+
 
 
 }
