@@ -21,6 +21,8 @@ public class CreateCourseRequest {
     @NotBlank
     private String category;
 
+    private String imageUrl;
+
     private StructuredDescription structuredDescription;
 
     private List<Section> sections; // Instead of flat List<Lesson>

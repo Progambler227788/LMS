@@ -11,7 +11,6 @@ import java.util.Optional;
 
 public interface StudentService {
 
-    List<CourseResponse> getAllCourses();
 
     Page<CourseResponse>  getCoursesByCategory(String category, int page, int size);
 

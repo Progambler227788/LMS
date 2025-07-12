@@ -130,9 +130,9 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Page<CourseResponse> getCoursesByCategory(String category, Pageable pageable) {
+    public Page<CourseResponse> getCoursesByCategory(String category, Pageable pageable, String userId) {
         return courseRepository.findByCategory(category.toLowerCase(), pageable)
-                .map(courseMapper::toResponse);
+                .map( course -> courseMapper.toStudentCourseResponse(course, userId));
     }
 
     @Override
@@ -154,7 +154,7 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Override
-    public Page<CourseResponse> getCourses(int page, int size, String category, String search) {
+    public Page<CourseResponse> getCourses(int page, int size, String category, String search, String userId) {
         Pageable pageable = PageRequest.of(page, size);
 
         boolean hasCategory = isValid(category);
@@ -165,12 +165,12 @@ public class CourseServiceImpl implements CourseService {
                     .findByCategoryAndTitleContainingIgnoreCaseOrCategoryAndDescriptionContainingIgnoreCase(
                             category, search, category, search, pageable
                     )
-                    .map(courseMapper::toResponse);
+                    .map(course -> courseMapper.toStudentCourseResponse(course, userId));
         }
 
         if (hasCategory) {
             return courseRepository.findByCategory(category, pageable)
-                    .map(courseMapper::toResponse);
+                    .map(course -> courseMapper.toStudentCourseResponse(course, userId));
         }
 
         if (hasSearch) {
@@ -178,10 +178,10 @@ public class CourseServiceImpl implements CourseService {
                     .findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
                             search, search, pageable
                     )
-                    .map(courseMapper::toResponse);
+                    .map(course -> courseMapper.toStudentCourseResponse(course, userId));
         }
 
-        return courseRepository.findAll(pageable).map(courseMapper::toResponse);
+        return courseRepository.findAll(pageable).map(course -> courseMapper.toStudentCourseResponse(course, userId));
     }
 
 

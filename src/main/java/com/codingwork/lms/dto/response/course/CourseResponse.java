@@ -32,6 +32,9 @@ public class CourseResponse {
     private double rating;
     private int ratingCount;
 
+    private boolean isEnrolled;
+
+
     private String createdAt;
     private String updatedAt;
 }

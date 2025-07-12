@@ -70,7 +70,7 @@ public interface CourseService {
      * @param category The course category
      * @return List of course responses
      */
-    Page<CourseResponse>  getCoursesByCategory(String category, Pageable pageable);
+    Page<CourseResponse>  getCoursesByCategory(String category, Pageable pageable, String userId);
 
     /**
      * Gets all courses (legacy/global).
@@ -84,5 +84,5 @@ public interface CourseService {
      */
     void deleteCourseById(String id);
 
-    Page<CourseResponse> getCourses(int page, int size, String category, String search);
+    Page<CourseResponse> getCourses(int page, int size, String category, String search, String userId);
 }

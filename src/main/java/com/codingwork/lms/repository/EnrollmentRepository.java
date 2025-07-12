@@ -14,5 +14,7 @@ public interface EnrollmentRepository extends MongoRepository<Enrollment, String
     List<Enrollment> findByUserId(String userId); // For My Courses
 
     List<Enrollment> findByCourseId(String courseId);
+
+    boolean existsByUserIdAndCourseId(String userId, String courseId);
 }
 

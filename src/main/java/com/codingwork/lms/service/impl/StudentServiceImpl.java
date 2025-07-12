@@ -31,23 +31,16 @@ public class StudentServiceImpl implements StudentService {
     private final JwtUtil jwtUtil;
 
 
-    @Override
-    public List<CourseResponse> getAllCourses() {
-        return courseRepository.findAll()
-                .stream()
-                .map(courseMapper::toResponse)
-                .toList();
-    }
 
     @Override
     public Page<CourseResponse> getCoursesByCategory(String category, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return  courseService.getCoursesByCategory(category, pageable);
+        return  courseService.getCoursesByCategory(category, pageable, userId());
     }
 
     @Override
     public Page<CourseResponse> getCourses(int page, int size, String category, String search) {
-        return courseService.getCourses(page, size, category, search);
+        return courseService.getCourses(page, size, category, search, userId());
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.codingwork.lms.dto.request.course.UpdateCourseRequest;
 import com.codingwork.lms.dto.response.course.CourseResponse;
 import com.codingwork.lms.entity.Course;
 import com.codingwork.lms.entity.User;
+import com.codingwork.lms.repository.EnrollmentRepository;
 import com.codingwork.lms.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -18,6 +19,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class CourseMapper {
     private final UserRepository userRepository;
+    private final EnrollmentRepository enrollmentRepository;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     public Course toEntity(CreateCourseRequest dto) {
@@ -25,6 +27,7 @@ public class CourseMapper {
 
         return Course.builder()
                 .title(dto.getTitle())
+                .imageUrl(dto.getImageUrl())
                 .description(dto.getStructuredDescription())
                 .category(dto.getCategory().toLowerCase(Locale.ROOT))
                 .sections(dto.getSections())
@@ -43,6 +46,7 @@ public class CourseMapper {
         if (dto == null || course == null) return;
 
         course.setTitle(dto.getTitle());
+        course.setImageUrl(dto.getImageUrl());
         course.setDescription(dto.getStructuredDescription());
         course.setCategory(dto.getCategory().toLowerCase(Locale.ROOT));
         course.setPrice(dto.getPrice());
@@ -64,6 +68,7 @@ public class CourseMapper {
                 .map(User::getUsername)
                 .orElse("Unknown Instructor");
 
+
         return CourseResponse.builder()
                 .id(course.getId())
                 .title(course.getTitle())
@@ -81,6 +86,36 @@ public class CourseMapper {
                 .ratingCount(course.getRatingCount())
                 .createdAt(course.getCreatedAt().format(formatter))
                 .updatedAt(course.getUpdatedAt().format(formatter))
+                .build();
+    }
+
+    public CourseResponse toStudentCourseResponse(Course course, String userId) {
+        if (course == null) return null;
+
+        String instructorName = userRepository.findById(new ObjectId(course.getInstructorId()))
+                .map(User::getUsername)
+                .orElse("Unknown Instructor");
+
+        boolean isEnrolled = enrollmentRepository.existsByUserIdAndCourseId(userId, course.getId());
+
+        return CourseResponse.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .description(course.getDescription())
+                .instructorId(course.getInstructorId())
+                .instructorName(instructorName)
+                .category(course.getCategory())
+                .imageUrl(course.getImageUrl())
+                .sections(course.getSections())
+                .price(course.getPrice())
+                .isFree(course.isFree())
+                .language(course.getLanguage())
+                .durationMinutes(course.getDurationMinutes())
+                .rating(course.getRating())
+                .ratingCount(course.getRatingCount())
+                .createdAt(course.getCreatedAt().format(formatter))
+                .updatedAt(course.getUpdatedAt().format(formatter))
+                .isEnrolled(isEnrolled)
                 .build();
     }
 }
