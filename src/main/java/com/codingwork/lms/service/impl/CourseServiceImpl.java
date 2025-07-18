@@ -2,7 +2,8 @@ package com.codingwork.lms.service.impl;
 
 import com.codingwork.lms.dto.request.course.CreateCourseRequest;
 import com.codingwork.lms.dto.request.course.UpdateCourseRequest;
-import com.codingwork.lms.dto.response.course.CourseResponse;
+import com.codingwork.lms.dto.response.course.CourseCardResponse;
+import com.codingwork.lms.dto.response.course.CourseDetailsResponse;
 import com.codingwork.lms.entity.Course;
 import com.codingwork.lms.mapper.CourseMapper;
 import com.codingwork.lms.repository.CourseRepository;
@@ -35,7 +36,7 @@ public class CourseServiceImpl implements CourseService {
      * @param dto The course creation request
      * @return The created course response
      */
-    public CourseResponse createCourseForAuthenticatedInstructor(CreateCourseRequest dto) {
+    public CourseDetailsResponse createCourseForAuthenticatedInstructor(CreateCourseRequest dto) {
         String instructorId = getAuthenticatedInstructorId();
         Course course = courseMapper.toEntity(dto);
         course.setInstructorId(instructorId);
@@ -49,7 +50,7 @@ public class CourseServiceImpl implements CourseService {
      * @param dto The update course request
      * @return The updated course response
      */
-    public CourseResponse updateCourseForAuthenticatedInstructor(String id, UpdateCourseRequest dto) {
+    public CourseDetailsResponse updateCourseForAuthenticatedInstructor(String id, UpdateCourseRequest dto) {
         String instructorId = getAuthenticatedInstructorId();
         Course course = courseRepository.findById(id)
                 .filter(c -> c.getInstructorId().equals(instructorId))
@@ -75,7 +76,7 @@ public class CourseServiceImpl implements CourseService {
      * Gets all courses for the authenticated instructor.
      * @return List of course responses
      */
-    public List<CourseResponse> getCoursesForAuthenticatedInstructor() {
+    public List<CourseDetailsResponse> getCoursesForAuthenticatedInstructor() {
         String instructorId = getAuthenticatedInstructorId();
         return courseRepository.findByInstructorId(instructorId)
                 .stream()
@@ -88,7 +89,7 @@ public class CourseServiceImpl implements CourseService {
      * @param id Course id
      * @return Optional with course response if found and owned by instructor
      */
-    public Optional<CourseResponse> getCourseByIdForAuthenticatedInstructor(String id) {
+    public Optional<CourseDetailsResponse> getCourseByIdForAuthenticatedInstructor(String id) {
         String instructorId = getAuthenticatedInstructorId();
         return courseRepository.findById(id)
                 .filter(c -> c.getInstructorId().equals(instructorId))
@@ -117,12 +118,12 @@ public class CourseServiceImpl implements CourseService {
     // Legacy methods for admin/global queries (optional, not used in instructor controller):
 
     @Override
-    public Optional<CourseResponse> getCourseById(String id) {
+    public Optional<CourseDetailsResponse> getCourseById(String id) {
         return courseRepository.findById(id).map(courseMapper::toResponse);
     }
 
     @Override
-    public List<CourseResponse> getCoursesByInstructor(String instructorId) {
+    public List<CourseDetailsResponse> getCoursesByInstructor(String instructorId) {
         return courseRepository.findByInstructorId(instructorId)
                 .stream()
                 .map(courseMapper::toResponse)
@@ -130,13 +131,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Page<CourseResponse> getCoursesByCategory(String category, Pageable pageable, String userId) {
+    public Page<CourseCardResponse> getCoursesByCategory(String category, Pageable pageable, String userId) {
         return courseRepository.findByCategory(category.toLowerCase(), pageable)
-                .map( course -> courseMapper.toStudentCourseResponse(course, userId));
+                .map( course -> courseMapper.toCardResponse(course, userId));
     }
 
     @Override
-    public List<CourseResponse> getAllCourses() {
+    public List<CourseDetailsResponse> getAllCourses() {
         return courseRepository.findAll()
                 .stream()
                 .map(courseMapper::toResponse)
@@ -154,7 +155,7 @@ public class CourseServiceImpl implements CourseService {
 
 
     @Override
-    public Page<CourseResponse> getCourses(int page, int size, String category, String search, String userId) {
+    public Page<CourseCardResponse> getCourses(int page, int size, String category, String search, String userId) {
         Pageable pageable = PageRequest.of(page, size);
 
         boolean hasCategory = isValid(category);
@@ -165,12 +166,12 @@ public class CourseServiceImpl implements CourseService {
                     .findByCategoryAndTitleContainingIgnoreCaseOrCategoryAndDescriptionContainingIgnoreCase(
                             category, search, category, search, pageable
                     )
-                    .map(course -> courseMapper.toStudentCourseResponse(course, userId));
+                    .map(course -> courseMapper.toCardResponse(course, userId));
         }
 
         if (hasCategory) {
             return courseRepository.findByCategory(category, pageable)
-                    .map(course -> courseMapper.toStudentCourseResponse(course, userId));
+                    .map(course -> courseMapper.toCardResponse(course, userId));
         }
 
         if (hasSearch) {
@@ -178,10 +179,10 @@ public class CourseServiceImpl implements CourseService {
                     .findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
                             search, search, pageable
                     )
-                    .map(course -> courseMapper.toStudentCourseResponse(course, userId));
+                    .map(course -> courseMapper.toCardResponse(course, userId));
         }
 
-        return courseRepository.findAll(pageable).map(course -> courseMapper.toStudentCourseResponse(course, userId));
+        return courseRepository.findAll(pageable).map(course -> courseMapper.toCardResponse(course, userId));
     }
 
 

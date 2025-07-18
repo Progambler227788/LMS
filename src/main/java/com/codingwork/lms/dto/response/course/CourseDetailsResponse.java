@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Data
-public class CourseResponse {
+public class CourseDetailsResponse {
     private String id;
     private String title;
     private StructuredDescription description;

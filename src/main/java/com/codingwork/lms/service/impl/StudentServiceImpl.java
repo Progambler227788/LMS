@@ -1,7 +1,8 @@
 package com.codingwork.lms.service.impl;
 
 
-import com.codingwork.lms.dto.response.course.CourseResponse;
+import com.codingwork.lms.dto.response.course.CourseCardResponse;
+import com.codingwork.lms.dto.response.course.CourseDetailsResponse;
 import com.codingwork.lms.dto.response.enrollment.EnrollmentResponse;
 import com.codingwork.lms.exception.InvalidCredentialsException;
 import com.codingwork.lms.mapper.CourseMapper;
@@ -33,13 +34,13 @@ public class StudentServiceImpl implements StudentService {
 
 
     @Override
-    public Page<CourseResponse> getCoursesByCategory(String category, int page, int size) {
+    public Page<CourseCardResponse> getCoursesByCategory(String category, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return  courseService.getCoursesByCategory(category, pageable, userId());
     }
 
     @Override
-    public Page<CourseResponse> getCourses(int page, int size, String category, String search) {
+    public Page<CourseCardResponse> getCourses(int page, int size, String category, String search) {
         return courseService.getCourses(page, size, category, search, userId());
     }
 
@@ -56,7 +57,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Optional<CourseResponse> getCourse(String courseId) {
+    public Optional<CourseDetailsResponse> getCourse(String courseId) {
         return courseService.getCourseById(courseId);
     }
 

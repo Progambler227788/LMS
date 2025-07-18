@@ -2,7 +2,7 @@ package com.codingwork.lms.controller;
 
 import com.codingwork.lms.dto.request.course.CreateCourseRequest;
 import com.codingwork.lms.dto.request.course.UpdateCourseRequest;
-import com.codingwork.lms.dto.response.course.CourseResponse;
+import com.codingwork.lms.dto.response.course.CourseDetailsResponse;
 import com.codingwork.lms.service.impl.CourseServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -31,8 +31,8 @@ public class InstructorController {
     @Operation(summary = "Create Course", description = "Create a new course for the authenticated instructor")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     @PostMapping("/course")
-    public ResponseEntity<CourseResponse> createCourse(@Valid @RequestBody CreateCourseRequest dto) {
-        CourseResponse course = courseService.createCourseForAuthenticatedInstructor(dto);
+    public ResponseEntity<CourseDetailsResponse> createCourse(@Valid @RequestBody CreateCourseRequest dto) {
+        CourseDetailsResponse course = courseService.createCourseForAuthenticatedInstructor(dto);
         return new ResponseEntity<>(course, HttpStatus.CREATED);
     }
 
@@ -45,9 +45,9 @@ public class InstructorController {
     @Operation(summary = "Update Course", description = "Update an existing course owned by the authenticated instructor")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     @PutMapping("/course/{id}")
-    public ResponseEntity<CourseResponse> updateCourse(@PathVariable String id,
-                                                       @Valid @RequestBody UpdateCourseRequest dto) {
-        CourseResponse updated = courseService.updateCourseForAuthenticatedInstructor(id, dto);
+    public ResponseEntity<CourseDetailsResponse> updateCourse(@PathVariable String id,
+                                                              @Valid @RequestBody UpdateCourseRequest dto) {
+        CourseDetailsResponse updated = courseService.updateCourseForAuthenticatedInstructor(id, dto);
         return ResponseEntity.ok(updated);
     }
 
@@ -71,8 +71,8 @@ public class InstructorController {
     @Operation(summary = "Get My Courses", description = "Get all courses created by the authenticated instructor")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     @GetMapping("/courses/me")
-    public ResponseEntity<List<CourseResponse>> getMyCourses() {
-        List<CourseResponse> list = courseService.getCoursesForAuthenticatedInstructor();
+    public ResponseEntity<List<CourseDetailsResponse>> getMyCourses() {
+        List<CourseDetailsResponse> list = courseService.getCoursesForAuthenticatedInstructor();
         return ResponseEntity.ok(list);
     }
 
@@ -83,7 +83,7 @@ public class InstructorController {
     @Operation(summary = "Get Course by ID", description = "Get a course by ID if owned by the authenticated instructor")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     @GetMapping("/course/{id}")
-    public ResponseEntity<CourseResponse> getCourseById(@PathVariable String id) {
+    public ResponseEntity<CourseDetailsResponse> getCourseById(@PathVariable String id) {
         return courseService.getCourseByIdForAuthenticatedInstructor(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

@@ -1,7 +1,9 @@
 package com.codingwork.lms.controller;
 
-import com.codingwork.lms.dto.response.course.CourseResponse;
+import com.codingwork.lms.dto.response.course.CourseCardResponse;
+import com.codingwork.lms.dto.response.course.CourseDetailsResponse;
 import com.codingwork.lms.dto.response.enrollment.EnrollmentResponse;
+import com.codingwork.lms.entity.Course;
 import com.codingwork.lms.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,7 +32,7 @@ public class StudentController {
     )
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/courses/filter")
-    public ResponseEntity<Page<CourseResponse>> getCoursesByCategory(
+    public ResponseEntity<Page<CourseCardResponse>> getCoursesByCategory(
             @RequestParam String category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -46,7 +48,7 @@ public class StudentController {
     )
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/courses")
-    public ResponseEntity<Page<CourseResponse>> getCourses(
+    public ResponseEntity<Page<CourseCardResponse>> getCourses(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String category,
@@ -85,7 +87,7 @@ public class StudentController {
     )
     @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/courses/{courseId}")
-    public ResponseEntity<CourseResponse> getCourseById(@PathVariable String courseId) {
+    public ResponseEntity<CourseDetailsResponse> getCourseById(@PathVariable String courseId) {
         return studentService.getCourse(courseId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

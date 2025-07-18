@@ -2,7 +2,8 @@ package com.codingwork.lms.service;
 
 import com.codingwork.lms.dto.request.course.CreateCourseRequest;
 import com.codingwork.lms.dto.request.course.UpdateCourseRequest;
-import com.codingwork.lms.dto.response.course.CourseResponse;
+import com.codingwork.lms.dto.response.course.CourseCardResponse;
+import com.codingwork.lms.dto.response.course.CourseDetailsResponse;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,20 +21,20 @@ public interface CourseService {
      * @param dto The course creation request
      * @return The created course response
      */
-    CourseResponse createCourseForAuthenticatedInstructor(CreateCourseRequest dto);
+    CourseDetailsResponse createCourseForAuthenticatedInstructor(CreateCourseRequest dto);
 
     /**
      * Gets course by ID for the authenticated instructor.
      * @param id The course ID
      * @return Optional course response if found and owned by instructor
      */
-    Optional<CourseResponse> getCourseByIdForAuthenticatedInstructor(String id);
+    Optional<CourseDetailsResponse> getCourseByIdForAuthenticatedInstructor(String id);
 
     /**
      * Gets all courses for the authenticated instructor.
      * @return List of course responses
      */
-    List<CourseResponse> getCoursesForAuthenticatedInstructor();
+    List<CourseDetailsResponse> getCoursesForAuthenticatedInstructor();
 
     /**
      * Updates an existing course for the authenticated instructor.
@@ -41,7 +42,7 @@ public interface CourseService {
      * @param dto The update course request
      * @return The updated course response
      */
-    CourseResponse updateCourseForAuthenticatedInstructor(String id, UpdateCourseRequest dto);
+    CourseDetailsResponse updateCourseForAuthenticatedInstructor(String id, UpdateCourseRequest dto);
 
     /**
      * Deletes a course owned by the authenticated instructor.
@@ -56,27 +57,27 @@ public interface CourseService {
      * @param id The course ID
      * @return Optional course response
      */
-    Optional<CourseResponse> getCourseById(String id);
+    Optional<CourseDetailsResponse> getCourseById(String id);
 
     /**
      * Gets courses by instructor (legacy/global).
      * @param instructorId The instructor's user ID
      * @return List of course responses
      */
-    List<CourseResponse> getCoursesByInstructor(String instructorId);
+    List<CourseDetailsResponse> getCoursesByInstructor(String instructorId);
 
     /**
      * Gets courses by category.
      * @param category The course category
      * @return List of course responses
      */
-    Page<CourseResponse>  getCoursesByCategory(String category, Pageable pageable, String userId);
+    Page<CourseCardResponse>  getCoursesByCategory(String category, Pageable pageable, String userId);
 
     /**
      * Gets all courses (legacy/global).
      * @return List of course responses
      */
-    List<CourseResponse> getAllCourses();
+    List<CourseDetailsResponse> getAllCourses();
 
     /**
      * Deletes course by ID (legacy/global).
@@ -84,5 +85,5 @@ public interface CourseService {
      */
     void deleteCourseById(String id);
 
-    Page<CourseResponse> getCourses(int page, int size, String category, String search, String userId);
+    Page<CourseCardResponse> getCourses(int page, int size, String category, String search, String userId);
 }

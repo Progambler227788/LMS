@@ -2,9 +2,13 @@ package com.codingwork.lms.mapper;
 
 import com.codingwork.lms.dto.request.course.CreateCourseRequest;
 import com.codingwork.lms.dto.request.course.UpdateCourseRequest;
-import com.codingwork.lms.dto.response.course.CourseResponse;
+import com.codingwork.lms.dto.response.course.CourseCardResponse;
+import com.codingwork.lms.dto.response.course.CourseDetailsResponse;
 import com.codingwork.lms.entity.Course;
 import com.codingwork.lms.entity.User;
+import com.codingwork.lms.entity.subdocument.Section;
+import com.codingwork.lms.entity.subdocument.StructuredDescription;
+import com.codingwork.lms.entity.subdocument.description.DescriptionSection;
 import com.codingwork.lms.repository.EnrollmentRepository;
 import com.codingwork.lms.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 @Component
@@ -61,7 +66,7 @@ public class CourseMapper {
         course.setUpdatedAt(LocalDateTime.now());
     }
 
-    public CourseResponse toResponse(Course course) {
+    public CourseDetailsResponse toResponse(Course course) {
         if (course == null) return null;
 
         String instructorName = userRepository.findById(new ObjectId(course.getInstructorId()))
@@ -69,7 +74,7 @@ public class CourseMapper {
                 .orElse("Unknown Instructor");
 
 
-        return CourseResponse.builder()
+        return CourseDetailsResponse.builder()
                 .id(course.getId())
                 .title(course.getTitle())
                 .description(course.getDescription())
@@ -89,7 +94,7 @@ public class CourseMapper {
                 .build();
     }
 
-    public CourseResponse toStudentCourseResponse(Course course, String userId) {
+    public CourseDetailsResponse toStudentCourseResponse(Course course, String userId) {
         if (course == null) return null;
 
         String instructorName = userRepository.findById(new ObjectId(course.getInstructorId()))
@@ -98,7 +103,7 @@ public class CourseMapper {
 
         boolean isEnrolled = enrollmentRepository.existsByUserIdAndCourseId(userId, course.getId());
 
-        return CourseResponse.builder()
+        return CourseDetailsResponse.builder()
                 .id(course.getId())
                 .title(course.getTitle())
                 .description(course.getDescription())
@@ -117,5 +122,49 @@ public class CourseMapper {
                 .updatedAt(course.getUpdatedAt().format(formatter))
                 .isEnrolled(isEnrolled)
                 .build();
+    }
+
+    public CourseCardResponse toCardResponse(Course course, String userId) {
+        if (course == null) return null;
+
+        String instructorName = userRepository.findById(new ObjectId(course.getInstructorId()))
+                .map(User::getUsername)
+                .orElse("Unknown Instructor");
+
+        boolean isEnrolled = enrollmentRepository.existsByUserIdAndCourseId(userId, course.getId());
+
+        return CourseCardResponse.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .instructorName(instructorName)
+                .category(course.getCategory())
+                .imageUrl(course.getImageUrl())
+                .price(course.getPrice())
+                .isFree(course.isFree())
+                .rating(course.getRating())
+                .ratingCount(course.getRatingCount())
+                .isEnrolled(isEnrolled)
+                .totalLessons(calculateTotalLessons(course.getSections()))
+                .firstDescription(extractFirstDescription(course.getDescription()))
+                .build();
+    }
+
+
+    private int calculateTotalLessons(List<Section> sections) {
+        if (sections == null) return 0;
+        return sections.stream()
+                .mapToInt(section -> section.getLessons() != null ? section.getLessons().size() : 0)
+                .sum();
+    }
+
+    private String extractFirstDescription(StructuredDescription description) {
+        if (description == null || description.getSections() == null || description.getSections().isEmpty()) {
+            return "";
+        }
+        List<DescriptionSection> sections = description.getSections();
+        if (!sections.get(0).getBulletPoints().isEmpty()) {
+            return sections.get(0).getBulletPoints().get(0); // First bullet of first section
+        }
+        return "";
     }
 }
