@@ -167,46 +167,60 @@ public class CourseServiceImpl implements CourseService {
     }
 
 
-    @Override
-    public Page<CourseCardResponse> getCoursesByCategory(String category, Pageable pageable, String userId) {
-        Set<String> enrolledCourseIds =fetchEnrollments(userId);
-        return courseRepository.findByCategory(category.toLowerCase(), pageable)
-                .map( course -> courseMapper.toCardResponse(course, enrolledCourseIds));
+    private Set<String> fetchEnrollmentsIfNeeded(String userId, Page<Course> coursePage) {
+        if (userId == null || coursePage.isEmpty()) return Set.of();
+        return fetchEnrollments(userId);
     }
 
+    private Page<CourseCardResponse> mapCoursesToCardResponse(Page<Course> page, Set<String> enrolledCourseIds) {
+        return page.map(course -> courseMapper.toCardResponse(course, enrolledCourseIds));
+    }
+
+    private String normalize(String str) {
+        return str != null ? str.trim().toLowerCase() : null;
+    }
+
+
+
+    @Override
+    public Page<CourseCardResponse> getCoursesByCategory(String category, Pageable pageable, String userId) {
+        category = normalize(category);
+        Page<Course> page = courseRepository.findByCategory(category, pageable);
+        Set<String> enrolledCourseIds = fetchEnrollmentsIfNeeded(userId, page);
+        return mapCoursesToCardResponse(page, enrolledCourseIds);
+    }
 
     @Override
     public Page<CourseCardResponse> getCourses(int page, int size, String category, String search, String userId) {
         Pageable pageable = PageRequest.of(page, size);
+        category = normalize(category);
+        search = normalize(search);
+
+        Page<Course> coursePage;
 
         boolean hasCategory = isValid(category);
         boolean hasSearch = isValid(search);
-        Set<String> enrolledCourseIds =fetchEnrollments(userId);
-
 
         if (hasCategory && hasSearch) {
-            return courseRepository
+            coursePage = courseRepository
                     .findByCategoryAndTitleContainingIgnoreCaseOrCategoryAndDescriptionContainingIgnoreCase(
-                            category, search, category, search, pageable
-                    )
-                    .map(course -> courseMapper.toCardResponse(course, enrolledCourseIds));
+                            category, search, category, search, pageable);
+        }
+        else if (hasCategory) {
+            coursePage = courseRepository.findByCategory(category, pageable);
+        }
+        else if (hasSearch) {
+            coursePage = courseRepository
+                    .findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(search, search, pageable);
+        }
+        else {
+            coursePage = courseRepository.findAll(pageable);
         }
 
-        if (hasCategory) {
-            return courseRepository.findByCategory(category, pageable)
-                    .map(course -> courseMapper.toCardResponse(course, enrolledCourseIds));
-        }
-
-        if (hasSearch) {
-            return courseRepository
-                    .findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
-                            search, search, pageable
-                    )
-                    .map(course -> courseMapper.toCardResponse(course, enrolledCourseIds));
-        }
-
-        return courseRepository.findAll(pageable).map(course -> courseMapper.toCardResponse(course, enrolledCourseIds));
+        Set<String> enrolledCourseIds = fetchEnrollmentsIfNeeded(userId, coursePage);
+        return mapCoursesToCardResponse(coursePage, enrolledCourseIds);
     }
+
 
 
 
