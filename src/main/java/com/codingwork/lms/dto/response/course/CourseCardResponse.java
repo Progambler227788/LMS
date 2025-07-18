@@ -20,5 +20,4 @@ public class CourseCardResponse {
     private int ratingCount;
     private boolean isEnrolled;
     private int totalLessons;
-    private String firstDescription;
 }

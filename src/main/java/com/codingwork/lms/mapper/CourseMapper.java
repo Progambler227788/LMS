@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -69,17 +70,13 @@ public class CourseMapper {
     public CourseDetailsResponse toResponse(Course course) {
         if (course == null) return null;
 
-        String instructorName = userRepository.findById(new ObjectId(course.getInstructorId()))
-                .map(User::getUsername)
-                .orElse("Unknown Instructor");
 
 
         return CourseDetailsResponse.builder()
                 .id(course.getId())
                 .title(course.getTitle())
                 .description(course.getDescription())
-                .instructorId(course.getInstructorId())
-                .instructorName(instructorName)
+                .instructorName(course.getInstructorName())
                 .category(course.getCategory())
                 .imageUrl(course.getImageUrl())
                 .sections(course.getSections())
@@ -94,49 +91,17 @@ public class CourseMapper {
                 .build();
     }
 
-    public CourseDetailsResponse toStudentCourseResponse(Course course, String userId) {
+
+
+    public CourseCardResponse toCardResponse(Course course, Set<String> enrolledCourseIds) {
         if (course == null) return null;
 
-        String instructorName = userRepository.findById(new ObjectId(course.getInstructorId()))
-                .map(User::getUsername)
-                .orElse("Unknown Instructor");
-
-        boolean isEnrolled = enrollmentRepository.existsByUserIdAndCourseId(userId, course.getId());
-
-        return CourseDetailsResponse.builder()
-                .id(course.getId())
-                .title(course.getTitle())
-                .description(course.getDescription())
-                .instructorId(course.getInstructorId())
-                .instructorName(instructorName)
-                .category(course.getCategory())
-                .imageUrl(course.getImageUrl())
-                .sections(course.getSections())
-                .price(course.getPrice())
-                .isFree(course.isFree())
-                .language(course.getLanguage())
-                .durationMinutes(course.getDurationMinutes())
-                .rating(course.getRating())
-                .ratingCount(course.getRatingCount())
-                .createdAt(course.getCreatedAt().format(formatter))
-                .updatedAt(course.getUpdatedAt().format(formatter))
-                .isEnrolled(isEnrolled)
-                .build();
-    }
-
-    public CourseCardResponse toCardResponse(Course course, String userId) {
-        if (course == null) return null;
-
-        String instructorName = userRepository.findById(new ObjectId(course.getInstructorId()))
-                .map(User::getUsername)
-                .orElse("Unknown Instructor");
-
-        boolean isEnrolled = enrollmentRepository.existsByUserIdAndCourseId(userId, course.getId());
+        boolean isEnrolled = enrolledCourseIds.contains(course.getId());
 
         return CourseCardResponse.builder()
                 .id(course.getId())
                 .title(course.getTitle())
-                .instructorName(instructorName)
+                .instructorName(course.getInstructorName())
                 .category(course.getCategory())
                 .imageUrl(course.getImageUrl())
                 .price(course.getPrice())
@@ -144,27 +109,11 @@ public class CourseMapper {
                 .rating(course.getRating())
                 .ratingCount(course.getRatingCount())
                 .isEnrolled(isEnrolled)
-                .totalLessons(calculateTotalLessons(course.getSections()))
-                .firstDescription(extractFirstDescription(course.getDescription()))
+                .totalLessons(course.getTotalLessons())
                 .build();
     }
 
 
-    private int calculateTotalLessons(List<Section> sections) {
-        if (sections == null) return 0;
-        return sections.stream()
-                .mapToInt(section -> section.getLessons() != null ? section.getLessons().size() : 0)
-                .sum();
-    }
 
-    private String extractFirstDescription(StructuredDescription description) {
-        if (description == null || description.getSections() == null || description.getSections().isEmpty()) {
-            return "";
-        }
-        List<DescriptionSection> sections = description.getSections();
-        if (!sections.get(0).getBulletPoints().isEmpty()) {
-            return sections.get(0).getBulletPoints().get(0); // First bullet of first section
-        }
-        return "";
-    }
+
 }

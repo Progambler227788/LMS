@@ -25,7 +25,7 @@ public class CreateCourseRequest {
 
     private StructuredDescription structuredDescription;
 
-    private List<Section> sections; // Instead of flat List<Lesson>
+    private List<Section> sections;
 
     private double price;
     private boolean free;

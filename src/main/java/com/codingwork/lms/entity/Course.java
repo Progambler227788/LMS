@@ -25,13 +25,15 @@ public class Course {
     private String id;
 
     private String title;
-    private String instructorId;
+    private String instructorName;
 
     @Indexed
     private String category;
 
     private String imageUrl;
     private List<Section> sections;
+
+    private int totalLessons;
 
     private double price;
     private boolean free;

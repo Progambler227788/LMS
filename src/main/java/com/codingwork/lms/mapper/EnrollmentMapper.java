@@ -14,11 +14,7 @@ public class EnrollmentMapper {
     public EnrollmentResponse toResponse(Enrollment enrollment, Course course) {
         if (enrollment == null || course == null) return null;
 
-        int totalLessons = course.getSections() != null
-                ? course.getSections().stream()
-                .mapToInt(section -> section.getLessons() != null ? section.getLessons().size() : 0)
-                .sum()
-                : 0;
+        int totalLessons = course.getTotalLessons();
 
         int completedLessons = (int) Math.round((enrollment.getProgress() / 100.0) * totalLessons);
 
@@ -26,7 +22,7 @@ public class EnrollmentMapper {
                 .courseId(course.getId())
                 .courseTitle(course.getTitle())
                 .courseImageUrl(course.getImageUrl())
-                .totalLessons(totalLessons)
+                .totalLessons(course.getTotalLessons())
                 .completedLessons(completedLessons)
                 .progress(enrollment.getProgress())
                 .completed(enrollment.isCompleted())

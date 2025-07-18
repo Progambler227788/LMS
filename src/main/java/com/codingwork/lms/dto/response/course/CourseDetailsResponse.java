@@ -17,13 +17,10 @@ public class CourseDetailsResponse {
     private String id;
     private String title;
     private StructuredDescription description;
-    private String instructorId;
     private String instructorName;
     private String category;
     private String imageUrl;
-
-    private List<Section> sections; // Replaces List<Lesson>
-
+    private List<Section> sections;
     private double price;
     private boolean isFree;
     private String language;

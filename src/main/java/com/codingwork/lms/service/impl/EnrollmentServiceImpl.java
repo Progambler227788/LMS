@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -59,15 +60,28 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Override
     public List<EnrollmentResponse> getUserEnrollmentResponses(String userId) {
         List<Enrollment> enrollments = enrollmentRepository.findByUserId(userId);
+        if (enrollments.isEmpty()) return List.of();
 
+        //  Extract course IDs
+        List<String> courseIds = enrollments.stream()
+                .map(Enrollment::getCourseId)
+                .distinct()
+                .toList();
+
+        // Fetch all relevant courses in a single query
+        List<Course> courses = courseRepository.findAllById(courseIds);
+
+        //  Map courseId -> Course
+        Map<String, Course> courseMap = courses.stream()
+                .collect(Collectors.toMap(Course::getId, course -> course));
+
+        // Build responses using map
         return enrollments.stream()
-                .map(enrollment -> {
-                    Optional<Course> courseOpt = courseRepository.findById(enrollment.getCourseId());
-                    return courseOpt.map(course -> enrollmentMapper.toResponse(enrollment, course)).orElse(null);
-                })
-                .filter(response -> response != null)
-                .collect(Collectors.toList());
+                .filter(enrollment -> courseMap.containsKey(enrollment.getCourseId()))
+                .map(enrollment -> enrollmentMapper.toResponse(enrollment, courseMap.get(enrollment.getCourseId())))
+                .toList();
     }
+
 
     @Override
     public void markLessonComplete(String userId, String courseId, String lessonTitle) {

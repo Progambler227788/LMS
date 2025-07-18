@@ -12,6 +12,12 @@ secret:
 
 logging:
   level:
-    root: WARN
-    com.codingwork.lms: DEBUG
-    org.springframework.web: INFO
+    root: WARN                               # Default log level for everything
+    com.codingwork.lms: DEBUG                # Enable detailed logging for your app package
+    org.springframework.web: INFO            # Moderate detail for Spring Web
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: DEBUG           # Fine-grained logging for MongoTemplate
